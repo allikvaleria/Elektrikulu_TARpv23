@@ -5,7 +5,7 @@
 namespace Elektrikulu_TARpv23.Migrations
 {
     /// <inheritdoc />
-    public partial class addedUsage : Migration
+    public partial class addedPaymentStatus : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

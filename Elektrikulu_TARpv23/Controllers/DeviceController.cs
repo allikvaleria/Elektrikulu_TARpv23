@@ -1,7 +1,7 @@
-﻿using Elektrikulu_TARpv23.Data;
-using Elektrikulu_TARpv23.Models;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using Elektrikulu_TARpv23.Data;
+using Elektrikulu_TARpv23.Models;
 
 namespace Elektrikulu_TARpv23.Controllers
 {
@@ -19,8 +19,16 @@ namespace Elektrikulu_TARpv23.Controllers
         [HttpGet]
         public List<Device> GetDevices()
         {
-            var devices = _context.Devices.ToList();
-            return devices;
+            return _context.Devices.ToList();
+        }
+
+        [HttpGet("{id}")]
+        public ActionResult<Device> GetDevice(int id)
+        {
+            var device = _context.Devices.Find(id);
+            if (device == null)
+                return NotFound();
+            return device;
         }
 
         [HttpPost]
@@ -31,51 +39,37 @@ namespace Elektrikulu_TARpv23.Controllers
             return _context.Devices.ToList();
         }
 
-        [HttpDelete("{id}")]
-        public List<Device> DeleteDevice(int id)
-        {
-            var device = _context.Devices.Find(id);
-
-            if (device == null)
-            {
-                return _context.Devices.ToList();
-            }
-
-            _context.Devices.Remove(device);
-            _context.SaveChanges();
-            return _context.Devices.ToList();
-        }
-
-        [HttpGet("{id}")]
-        public ActionResult<Device> GetDevice(int id)
-        {
-            var device = _context.Devices.Find(id);
-
-            if (device == null)
-            {
-                return NotFound();
-            }
-
-            return device;
-        }
-
         [HttpPut("{id}")]
-        public ActionResult<List<Device>> EditDevice(int id, [FromBody] Device updatedDevice)
+        public ActionResult<List<Device>> PutDevice(int id, [FromBody] Device updatedDevice)
         {
             var device = _context.Devices.Find(id);
-
             if (device == null)
-            {
                 return NotFound();
-            }
 
             device.Name = updatedDevice.Name;
-            device.Watts = updatedDevice.Watts;
+            device.Manufacturer = updatedDevice.Manufacturer;
+            device.DateOfNextMaintenance = updatedDevice.DateOfNextMaintenance;
+            device.ResidualValue = updatedDevice.ResidualValue;
+            device.PurchasePrice = updatedDevice.PurchasePrice;
+            device.ActiveBinaryValue = updatedDevice.ActiveBinaryValue;
 
             _context.Devices.Update(device);
             _context.SaveChanges();
 
-            return Ok(_context.Devices);
+            return Ok(_context.Devices.ToList());
+        }
+
+        [HttpDelete("{id}")]
+        public List<Device> DeleteDevice(int id)
+        {
+            var device = _context.Devices.Find(id);
+            if (device == null)
+                return _context.Devices.ToList();
+
+            _context.Devices.Remove(device);
+            _context.SaveChanges();
+
+            return _context.Devices.ToList();
         }
     }
 }
