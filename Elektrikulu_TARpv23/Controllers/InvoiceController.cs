@@ -70,5 +70,52 @@ namespace Elektrikulu_TARpv23.Controllers
 
             return _context.Invoices.ToList();
         }
+        [HttpGet("unpaid")]
+        public List<Invoice> GetAllUnpaidInvoices()
+        {
+            return _context.Invoices
+                .Where(inv => inv.Status.IsPaid == false)
+                .ToList();
+        }
+
+        [HttpGet("unpaid-overdue")]
+        public List<Invoice> GetAllUnpaidOverdueInvoices()
+        {
+            return _context.Invoices
+                .Where(inv => inv.Status.IsPaid == false && inv.Status.DueDate < DateTime.Now)
+                .ToList();
+        }
+
+        [HttpGet("unpaid/customer/{customerId}")]
+        public List<Invoice> GetCustomerUnpaidInvoices(int customerId)
+        {
+            return _context.Invoices
+                .Where(inv => inv.ConsumerId == customerId && inv.Status.IsPaid == false)
+                .ToList();
+        }
+
+        [HttpGet("unpaid-overdue/customer/{customerId}")]
+        public List<Invoice> GetCustomerUnpaidOverdueInvoices(int customerId)
+        {
+            return _context.Invoices
+                .Where(inv => inv.ConsumerId == customerId && inv.Status.IsPaid == false && inv.Status.DueDate < DateTime.Now)
+                .ToList();
+        }
+
+        [HttpGet("customer/{customerId}")]
+        public List<Invoice> GetCustomerInvoices(int customerId)
+        {
+            return _context.Invoices
+                .Where(inv => inv.ConsumerId == customerId)
+                .ToList();
+        }
+
+        [HttpGet("customer/{customerId}/total-sum")]
+        public double GetCustomerInvoicesTotalSum(int customerId)
+        {
+            return _context.Invoices
+                .Where(inv => inv.ConsumerId == customerId)
+                .Sum(inv => inv.TotalAmount);
+        }
     }
 }

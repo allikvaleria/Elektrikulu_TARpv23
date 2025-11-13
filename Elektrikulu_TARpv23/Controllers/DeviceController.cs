@@ -32,8 +32,16 @@ namespace Elektrikulu_TARpv23.Controllers
         }
 
         [HttpPost]
-        public List<Device> PostDevice([FromBody] Device device)
+        public ActionResult<List<Device>> PostDevice([FromBody] Device device)
         {
+            if(device.DateOfNextMaintenance < DateTime.Now)
+            {
+                return BadRequest("Hooldusaeg ei tohi olla minevikus");
+            }
+            if (device.ResidualValue > device.PurchasePrice)
+            {
+                return BadRequest("Jääkmaksumus ei tohi olla suurem kui soetusmaksumus");
+            }
             _context.Devices.Add(device);
             _context.SaveChanges();
             return _context.Devices.ToList();
@@ -44,7 +52,17 @@ namespace Elektrikulu_TARpv23.Controllers
         {
             var device = _context.Devices.Find(id);
             if (device == null)
+            {
                 return NotFound();
+            }
+            if (updatedDevice.DateOfNextMaintenance < DateTime.Now)
+            {
+                return BadRequest("Hooldusaeg ei tohi olla minevikus");
+            }
+            if (updatedDevice.ResidualValue < device.PurchasePrice)
+            {
+                return BadRequest("Jääkmaksumus ei tohi olla suurem kui soetusmaksumus");
+            }
 
             device.Name = updatedDevice.Name;
             device.Manufacturer = updatedDevice.Manufacturer;
@@ -70,6 +88,38 @@ namespace Elektrikulu_TARpv23.Controllers
             _context.SaveChanges();
 
             return _context.Devices.ToList();
+        }
+
+        [HttpGet("maintenance-due")]
+        public List<Device> GetDevicesForMaintenance()
+        {
+            return _context.Devices
+                .Where(d => d.DateOfNextMaintenance < DateTime.Now)
+                .ToList();
+        }
+
+        [HttpGet("total-purchase-price")]
+        public double GetTotalPurchasePrice()
+        {
+            return _context.Devices.Sum(d => d.PurchasePrice);
+        }
+
+        [HttpGet("total-residual-value")]
+        public double GetTotalResidualValue()
+        {
+            return _context.Devices.Sum(d => d.ResidualValue);
+        }
+
+        [HttpGet("active")]
+        public List<Device> GetActiveDevices()
+        {
+            return _context.Devices.Where(d => d.ActiveBinaryValue == true).ToList();
+        }
+
+        [HttpGet("inactive")]
+        public List<Device> GetInactiveDevices()
+        {
+            return _context.Devices.Where(d => d.ActiveBinaryValue == false).ToList();
         }
     }
 }
