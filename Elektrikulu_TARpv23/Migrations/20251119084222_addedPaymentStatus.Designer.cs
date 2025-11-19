@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Elektrikulu_TARpv23.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251112091947_addedLocation")]
-    partial class addedLocation
+    [Migration("20251119084222_addedPaymentStatus")]
+    partial class addedPaymentStatus
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
