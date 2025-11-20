@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 using Elektrikulu_TARpv23.Data;
 using Elektrikulu_TARpv23.Models;
 
@@ -28,23 +27,23 @@ namespace Elektrikulu_TARpv23.Controllers
             var device = _context.Devices.Find(id);
             if (device == null)
                 return NotFound();
+
             return device;
         }
 
         [HttpPost]
         public ActionResult<List<Device>> PostDevice([FromBody] Device device)
         {
-            if(device.DateOfNextMaintenance < DateTime.Now)
-            {
+            if (device.DateOfNextMaintenance < DateTime.Now)
                 return BadRequest("Hooldusaeg ei tohi olla minevikus");
-            }
+
             if (device.ResidualValue > device.PurchasePrice)
-            {
                 return BadRequest("Jääkmaksumus ei tohi olla suurem kui soetusmaksumus");
-            }
+
             _context.Devices.Add(device);
             _context.SaveChanges();
-            return _context.Devices.ToList();
+
+            return Ok(_context.Devices.ToList());
         }
 
         [HttpPut("{id}")]
@@ -52,17 +51,13 @@ namespace Elektrikulu_TARpv23.Controllers
         {
             var device = _context.Devices.Find(id);
             if (device == null)
-            {
                 return NotFound();
-            }
+
             if (updatedDevice.DateOfNextMaintenance < DateTime.Now)
-            {
                 return BadRequest("Hooldusaeg ei tohi olla minevikus");
-            }
-            if (updatedDevice.ResidualValue < device.PurchasePrice)
-            {
+
+            if (updatedDevice.ResidualValue > updatedDevice.PurchasePrice)
                 return BadRequest("Jääkmaksumus ei tohi olla suurem kui soetusmaksumus");
-            }
 
             device.Name = updatedDevice.Name;
             device.Manufacturer = updatedDevice.Manufacturer;
@@ -78,16 +73,16 @@ namespace Elektrikulu_TARpv23.Controllers
         }
 
         [HttpDelete("{id}")]
-        public List<Device> DeleteDevice(int id)
+        public ActionResult<List<Device>> DeleteDevice(int id)
         {
             var device = _context.Devices.Find(id);
             if (device == null)
-                return _context.Devices.ToList();
+                return NotFound();
 
             _context.Devices.Remove(device);
             _context.SaveChanges();
 
-            return _context.Devices.ToList();
+            return Ok(_context.Devices.ToList());
         }
 
         [HttpGet("maintenance-due")]

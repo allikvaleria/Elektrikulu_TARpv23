@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace Elektrikulu_TARpv23.Controllers
 {
@@ -7,21 +8,26 @@ namespace Elektrikulu_TARpv23.Controllers
     [ApiController]
     public class EmployeeController : ControllerBase
     {
-        [HttpGet]
-        public IActionResult GetEmployees([FromQuery] int page = 1)
+        private readonly HttpClient _httpClient;
+
+        public EmployeeController(IHttpClientFactory httpClientFactory)
         {
-            using (var client = new HttpClient())
+            _httpClient = httpClientFactory.CreateClient();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetTootajad([FromQuery] int page = 2)
+        {
+            var url = $"https://reqres.in/api/users?page={page}";
+
+            var response = await _httpClient.GetAsync(url);
+            if (!response.IsSuccessStatusCode)
             {
-                var response = client.GetAsync($"https://reqres.in/api/users?page={page}").Result;
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    return StatusCode((int)response.StatusCode, "Error receiving data from external API");
-                }
-
-                var content = response.Content.ReadAsStringAsync().Result;
-                return Content(content, "application/json");
+                return StatusCode((int)response.StatusCode);
             }
+
+            var content = await response.Content.ReadAsStringAsync();
+            return Content(content, "application/json");
         }
     }
 }
