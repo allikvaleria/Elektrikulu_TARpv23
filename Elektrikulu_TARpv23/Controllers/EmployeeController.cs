@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -14,9 +15,9 @@ namespace Elektrikulu_TARpv23.Controllers
         {
             _httpClient = httpClientFactory.CreateClient();
         }
-
+        [AllowAnonymous]
         [HttpGet]
-        public async Task<IActionResult> GetTootajad([FromQuery] int page = 2)
+        public async Task<IActionResult> GetEmployee([FromQuery] int page = 2)
         {
             var url = $"https://reqres.in/api/users?page={page}";
 
